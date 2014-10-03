@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Project2-Movie Paint</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="create_mode">Create Mode</string>
+    <string name="watch_mode">Watch Mode</string>
+    <string name="paint_palette">Paint Palette</string>
+
+</resources>
