@@ -22,7 +22,6 @@ public class PaintActivity extends Activity {
     Gson _gson = new Gson();
     boolean _play = false;
     ImageView _playButton = null;
-    ArrayList<String> _bookList = new ArrayList<String>();
     PaintAreaView _paintAreaView;
 
     @Override
@@ -37,18 +36,17 @@ public class PaintActivity extends Activity {
         _paintAreaView = new PaintAreaView(this);
         _paintAreaView.setBackgroundColor(Color.WHITE);
 
-        PaletteView paletteLayout = new PaletteView(this);
-
         rootLayout.addView(_paintAreaView,
-                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 90));
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 20));
 
         // Seek bar
         LinearLayout SeekBarArea = new LinearLayout(this);
         SeekBarArea.setOrientation(LinearLayout.VERTICAL);
         SeekBar seekBar = new SeekBar(this);
+        seekBar.setBackgroundColor(Color.WHITE);
         SeekBarArea.addView(seekBar);
         rootLayout.addView(SeekBarArea,
-                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 5));
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
 
         // Menu bar
         LinearLayout MenuBar = new LinearLayout(this);
@@ -89,7 +87,8 @@ public class PaintActivity extends Activity {
             }
         });
 
-        rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10));
+
+        rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 2));
 
         setContentView(rootLayout);
 

@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import java.util.HashMap;
+
 /**
  * Created by jesuszarate on 10/3/14.
  */
@@ -32,7 +34,7 @@ public class CreateModeActivity extends Activity {
 
 
         rootLayout.addView(_paintAreaView,
-                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 90));
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 85));
 
         // Menu bar
         LinearLayout MenuBar = new LinearLayout(this);
@@ -43,7 +45,10 @@ public class CreateModeActivity extends Activity {
         _paintButton = new PaintView(this);
         _paintButton.setColor(PaletteView._selectedColor);
         _paintButton.setBackgroundColor(Color.LTGRAY);
-        MenuBar.addView(_paintButton, new LinearLayout.LayoutParams(200, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 30);
+        params.setMargins(10, 10, 10 ,10);
+        MenuBar.addView(_paintButton, params);
         _paintButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,8 +60,10 @@ public class CreateModeActivity extends Activity {
         _watchModeButton = new Button(this);
         _watchModeButton.setText("Watch Mode");
         _watchModeButton.setTextColor(Color.WHITE);
-        _watchModeButton.setBackgroundColor(Color.GRAY);
-        MenuBar.addView(_watchModeButton, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 30));
+        _watchModeButton.setBackgroundColor(Color.LTGRAY);
+        params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 30);
+        params.setMargins(10, 10, 10, 10);
+        MenuBar.addView(_watchModeButton, params);
         _watchModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,7 +71,24 @@ public class CreateModeActivity extends Activity {
             }
         });
 
-        rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10));
+        // Clear button
+        Button clearButton = new Button(this);
+        clearButton.setText("Clear");
+        clearButton.setTextColor(Color.WHITE);
+        clearButton.setBackgroundColor(Color.LTGRAY);
+        params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 30);
+        params.setMargins(10, 10, 10, 10);
+        MenuBar.addView(clearButton, params);
+        clearButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                _paintAreaView.clearLinePoints();
+                _paintAreaView.saveLinePoints(getFilesDir());
+                _paintAreaView.invalidate();
+            }
+        });
+
+        rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 15));
 
         setContentView(rootLayout);
     }

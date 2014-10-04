@@ -38,7 +38,7 @@ public class PaintAreaView extends ViewGroup {
     public PaintAreaView(Context context) {
         super(context);
         setBackgroundColor(Color.WHITE);
-            }
+    }
 
     public HashMap<Integer, Line> get_linePoints() {
         return _linePoints;
@@ -46,6 +46,11 @@ public class PaintAreaView extends ViewGroup {
 
     public void set_linePoints(HashMap<Integer, Line> _linePoints) {
         this._linePoints = _linePoints;
+    }
+
+    public void clearLinePoints() {
+        this._linePoints.clear();
+        this._lineCount = -1;
     }
 
     @Override
@@ -71,13 +76,12 @@ public class PaintAreaView extends ViewGroup {
 
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             _lineCount++;
-            //ArrayList<PointF> newPointList = new ArrayList<PointF>();
+
             Line line = new Line();
             line.setColor(PaletteView._selectedColor);
 
             _linePoints.put(_lineCount, line);
         }
-
         _linePoints.get(_lineCount).linePoints.add(new PointF(x, y));
 
         invalidate();
@@ -127,6 +131,14 @@ public class PaintAreaView extends ViewGroup {
             bufferedWriter.write(jsonPaintPoints);
             bufferedWriter.close();
 
+            // Also save the line count to keep track of the amount of lines that
+            // have already been drawn.
+            file = new File(filesDir, "lineCount.txt");
+            textWriter = new FileWriter(file);
+            BufferedWriter bufferedWriter1 = new BufferedWriter(textWriter);
+            bufferedWriter1.write(_lineCount + "\n");
+            bufferedWriter1.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -140,11 +152,22 @@ public class PaintAreaView extends ViewGroup {
             String jsonBookList = null;
             jsonBookList = bufferedTextReader.readLine();
 
-            //_gson = new Gson();
-            Type booklistType = new TypeToken<HashMap<Integer, Line>>(){}.getType();
+            Type booklistType = new TypeToken<HashMap<Integer, Line>>() {
+            }.getType();
             HashMap<Integer, Line> linePoints = _gson.fromJson(jsonBookList, booklistType);
             _linePoints = linePoints;
             bufferedTextReader.close();
+
+            file = new File(filesDir, "lineCount.txt");
+            textReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(textReader);
+            String lineCount = bufferedReader.readLine();
+            bufferedReader.close();
+            try {
+                _lineCount = Integer.parseInt(lineCount);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -164,6 +187,7 @@ public class PaintAreaView extends ViewGroup {
         public void setColor(int _color) {
             this._color = _color;
         }
+
     }
 }
 
