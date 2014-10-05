@@ -1,7 +1,6 @@
 package edu.utah.cs4962.project2;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,12 +9,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-
-import java.util.ArrayList;
 
 
 public class PaintActivity extends Activity {
@@ -23,7 +19,7 @@ public class PaintActivity extends Activity {
     Gson _gson = new Gson();
     boolean _play = false;
     ImageView _playButton = null;
-    PaintAreaView _paintAreaView;
+    WatchView _watchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +33,8 @@ public class PaintActivity extends Activity {
         else
             rootLayout.setOrientation(LinearLayout.VERTICAL);
 
-        _paintAreaView = new PaintAreaView(this);
-        _paintAreaView.setBackgroundColor(Color.WHITE);
+        _watchView = new WatchView(this);//new PaintAreaView(this);
+        _watchView.setBackgroundColor(Color.WHITE);
 
         // TODO:    Uncomment Me.
 //        // Seek bar
@@ -68,7 +64,7 @@ public class PaintActivity extends Activity {
         backToCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                _paintAreaView.invalidate();
+                _watchView.invalidate();
                 finish();
             }
         });
@@ -87,11 +83,14 @@ public class PaintActivity extends Activity {
                 if (_play) {
 
                     toast = Toast.makeText(getBaseContext(), "Play", Toast.LENGTH_SHORT);
-                    _playButton.setImageResource(R.drawable.play);
+                    _playButton.setImageResource(R.drawable.pause);
+                    //_watchView.init();
+                    _watchView.PauseAnimation();
                     _play = false;
                 } else {
                     toast = Toast.makeText(getBaseContext(), "Pause", Toast.LENGTH_SHORT);
-                    _playButton.setImageResource(R.drawable.pause);
+                    _playButton.setImageResource(R.drawable.play);
+                    _watchView.PlayAnimation();
                     _play = true;
                 }
 
@@ -101,11 +100,11 @@ public class PaintActivity extends Activity {
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 10));
-            rootLayout.addView(_paintAreaView,
+            rootLayout.addView(_watchView,
                     new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 90));
         }
         else {
-            rootLayout.addView(_paintAreaView,
+            rootLayout.addView(_watchView,
                     new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 90));
             rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10));
         }
@@ -118,7 +117,7 @@ public class PaintActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        _paintAreaView.loadLinePoints(getFilesDir());
+        //_paintAreaView.loadLinePoints(getFilesDir());
 
     }
 
@@ -126,7 +125,7 @@ public class PaintActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
-        _paintAreaView.saveLinePoints(getFilesDir());
+        //_paintAreaView.saveLinePoints(getFilesDir());
 
     }
 

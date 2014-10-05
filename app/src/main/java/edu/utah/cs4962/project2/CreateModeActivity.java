@@ -110,6 +110,14 @@ public class CreateModeActivity extends Activity {
         this.startActivityForResult(intent, 6);
     }
 
+    private void startNewPaintActivity() {
+        Intent intent = new Intent(this, PaintActivity.class);
+        this.startActivity(intent);
+    }
+//    private void startWatchActivity() {
+//        Intent intent = new Intent(this, WatchView.class);
+//        this.startActivity(intent);
+//    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -120,8 +128,5 @@ public class CreateModeActivity extends Activity {
             _watchModeButton.setTextColor(color);
         }
     }
-    private void startNewPaintActivity() {
-        Intent intent = new Intent(this, PaintActivity.class);
-        this.startActivity(intent);
-    }
+
 }

@@ -45,8 +45,6 @@ public class PaletteActivity extends Activity {
         _paintPaletteColors.add(0xFF00FF00);
         _paintPaletteColors.add(0xFF800080);
 
-        //loadColorPalette(getFilesDir());
-
         _paintAreaView = new PaintAreaView(this);
         _paintAreaView.setBackgroundColor(Color.WHITE);
 
@@ -89,28 +87,7 @@ public class PaletteActivity extends Activity {
             }
             _paletteLayout._colors.add(_paintPaletteColors.get(splotchIndex));
             paintView.setColor(_paintPaletteColors.get(splotchIndex));
-//            if (splotchIndex == 0) {
-//                paintView.setColor(Color.RED);
-//            }
-//            if (splotchIndex == 1) {
-//                // Orange
-//                paintView.setColor(0xFFFFA500);
-//            }
-//            if (splotchIndex == 2) {
-//                paintView.setColor(Color.YELLOW);
-//            }
-//            if (splotchIndex == 3) {
-//                // Blue
-//                paintView.setColor(0xFF0000FF);
-//            }
-//            if (splotchIndex == 4) {
-//                // Green
-//                paintView.setColor(0xFF00FF00);
-//            }
-//            if (splotchIndex == 5) {
-//                // Purple
-//                paintView.setColor(0xFF800080);
-//            }
+
             _paletteLayout.addView(paintView, new LinearLayout.LayoutParams(200, ViewGroup.LayoutParams.WRAP_CONTENT));
 
             paintView.setOnSplotchTouchListener(new PaintView.OnSplotchTouchListener() {
@@ -177,8 +154,6 @@ public class PaletteActivity extends Activity {
             if (colorPalette.getPaletteColors() != null && colorPalette.getPaletteColors().size() > 0) {
                 _paintPaletteColors = colorPalette.getPaletteColors();
             }
-            //_paletteLayout.set_selectedColor(colorPalette.getSelectedColor());
-            //_paletteLayout.invalidate();
             bufferedTextReader.close();
 
         } catch (FileNotFoundException e) {
@@ -205,15 +180,7 @@ public class PaletteActivity extends Activity {
         }
 
         public void setPaletteColors(ArrayList<Integer> colors) {
-//            ArrayList<Integer> colors = new ArrayList<Integer>();
-//            for(View v :paletteColors){
-//                try {
-//                    colors.add(((PaintView) v).getColor());
-//                }
-//                catch (Exception e){
-//                    continue;
-//                }
-//            }
+
             this._paletteColors = colors;
         }
     }

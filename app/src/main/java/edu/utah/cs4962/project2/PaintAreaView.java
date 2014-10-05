@@ -28,10 +28,8 @@ import java.util.HashMap;
  */
 public class PaintAreaView extends ViewGroup {
 
-
     private int _lineCount = -1;
-    //HashMap<Integer, ArrayList<PointF>> _linePoints = new HashMap<Integer, ArrayList<PointF>>();
-    HashMap<Integer, Line> _linePoints = new HashMap<Integer, Line>();
+    public static HashMap<Integer, Line> _linePoints = new HashMap<Integer, Line>();
     private int _lineColor = Color.BLACK;
     Gson _gson = new Gson();
 
@@ -176,7 +174,7 @@ public class PaintAreaView extends ViewGroup {
         }
     }
 
-    private class Line {
+    public class Line {
         ArrayList<PointF> linePoints = new ArrayList<PointF>();
         private int _color;
 
