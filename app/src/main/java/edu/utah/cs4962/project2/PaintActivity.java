@@ -2,6 +2,7 @@ package edu.utah.cs4962.project2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -31,43 +32,54 @@ public class PaintActivity extends Activity {
         _playButton = new ImageView(this);
 
         LinearLayout rootLayout = new LinearLayout(this);
-        rootLayout.setOrientation(LinearLayout.VERTICAL);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            rootLayout.setOrientation(LinearLayout.HORIZONTAL);
+        else
+            rootLayout.setOrientation(LinearLayout.VERTICAL);
 
         _paintAreaView = new PaintAreaView(this);
         _paintAreaView.setBackgroundColor(Color.WHITE);
 
-        rootLayout.addView(_paintAreaView,
-                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 20));
-
-        // Seek bar
-        LinearLayout SeekBarArea = new LinearLayout(this);
-        SeekBarArea.setOrientation(LinearLayout.VERTICAL);
-        SeekBar seekBar = new SeekBar(this);
-        seekBar.setBackgroundColor(Color.WHITE);
-        SeekBarArea.addView(seekBar);
-        rootLayout.addView(SeekBarArea,
-                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
+        // TODO:    Uncomment Me.
+//        // Seek bar
+//        LinearLayout SeekBarArea = new LinearLayout(this);
+//        SeekBarArea.setOrientation(LinearLayout.VERTICAL);
+//        SeekBar seekBar = new SeekBar(this);
+//        seekBar.setBackgroundColor(Color.WHITE);
+//        SeekBarArea.addView(seekBar);
+//        rootLayout.addView(SeekBarArea,
+//                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         // Menu bar
         LinearLayout MenuBar = new LinearLayout(this);
-        MenuBar.setOrientation(LinearLayout.HORIZONTAL);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            MenuBar.setOrientation(LinearLayout.VERTICAL);
+        else
+            MenuBar.setOrientation(LinearLayout.HORIZONTAL);
         MenuBar.setBackgroundColor(Color.WHITE);
 
         // GO BACK TO THE CREATE MODE.
         Button backToCreateButton = new Button(this);
         backToCreateButton.setText("Create Mode");
-        MenuBar.addView(backToCreateButton, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 30));
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            MenuBar.addView(backToCreateButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
+        else
+            MenuBar.addView(backToCreateButton, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         backToCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                _paintAreaView.invalidate();
                 finish();
             }
         });
 
         // Play Button
         _playButton.setImageResource(R.drawable.play);
-        MenuBar.addView(_playButton, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 80));
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            MenuBar.addView(_playButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
+        else
+            MenuBar.addView(_playButton, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+
         _playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,8 +99,16 @@ public class PaintActivity extends Activity {
             }
         });
 
-
-        rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 2));
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 10));
+            rootLayout.addView(_paintAreaView,
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 90));
+        }
+        else {
+            rootLayout.addView(_paintAreaView,
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 90));
+            rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10));
+        }
 
         setContentView(rootLayout);
 

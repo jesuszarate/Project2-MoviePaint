@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,7 +29,7 @@ import java.util.Map;
 public class PaletteView extends ViewGroup {
 
     public static ArrayList<View> _children = new ArrayList<View>();
-    //private ArrayList<PointF> _points = new ArrayList<PointF>();
+    public ArrayList<Integer> _colors = new ArrayList<Integer>();
     private HashMap<PaintView, PointF> _centerPosOfSplotches = new HashMap<PaintView, PointF>();
 
     private Rect _layoutRect;
@@ -54,28 +55,28 @@ public class PaletteView extends ViewGroup {
     }
 
     public void addNewColor(PaintView child, PaintView mixWithThisColor) {
-        if(_childrenNotGone <= 10) {
+        if (_childrenNotGone <= 10) {
             PaintView paintView = new PaintView(getContext());
             int firstColor = child.getColor();
             int secondColor = mixWithThisColor.getColor();
-            int red1 = firstColor  & 0x00FF0000;
+            int red1 = firstColor & 0x00FF0000;
             int red2 = secondColor & 0x00FF0000;
 
-            int green1 = firstColor  & 0x0000FF00;
+            int green1 = firstColor & 0x0000FF00;
             int green2 = secondColor & 0x0000FF00;
 
-            int blue1 = firstColor  & 0x000000FF;
+            int blue1 = firstColor & 0x000000FF;
             int blue2 = secondColor & 0x000000FF;
 
-            int red   = (red1 + red2)     / 2;
+            int red = (red1 + red2) / 2;
             int green = (green1 + green2) / 2;
-            int blue  = (blue1 + blue2)   / 2;
+            int blue = (blue1 + blue2) / 2;
 
             int color = 0xFF000000 | red | green | blue;
 
             paintView.setColor(color);
             addView(paintView, new LayoutParams(200, LayoutParams.WRAP_CONTENT));
-
+            _colors.add(color);
             paintView.setOnSplotchTouchListener(new PaintView.OnSplotchTouchListener() {
                 @Override
                 public void onSplotchTouched(PaintView v) {
@@ -90,6 +91,11 @@ public class PaletteView extends ViewGroup {
     public boolean removeColor(PaintView paintView) {
         if (getChildCount() - _childrenGone > 1) {
             paintView.setVisibility(GONE);
+
+            for(int colorIndex = 0; colorIndex < _colors.size(); colorIndex++) {
+                if(_colors.get(colorIndex) == paintView.getColor())
+                    _colors.remove(colorIndex);
+            }
             return true;
         }
         return false;
@@ -125,7 +131,7 @@ public class PaletteView extends ViewGroup {
                         //_selectedColor = mixWithThisColor.getColor();
                         _selectedColor = child.getColor();
                         break;
-                    } else if(!removeColor(child)){
+                    } else if (!removeColor(child)) {
 
                         // If the paint is dragged on top of another paint mix them together to
                         // create a new color.
@@ -151,6 +157,7 @@ public class PaletteView extends ViewGroup {
     /**
      * Animates the paint splotch so that it looks like the child is returning
      * to the spot where it was originally.
+     *
      * @param child
      * @param initialX
      * @param initialY
@@ -174,8 +181,8 @@ public class PaletteView extends ViewGroup {
                             new float[]{initialY - child.getHeight() / 2, _centerPosOfSplotches.get(child).y - centerOfChildY})
             );
             animator.start();
+        } catch (Exception e) {
         }
-        catch (Exception e){}
     }
 
     /**
@@ -255,10 +262,9 @@ public class PaletteView extends ViewGroup {
                 childState = combineMeasuredStates(childState, child.getMeasuredState());
             }
 
-            setMeasuredDimension(resolveSizeAndState(width/2, widthMeasureSpec, childState),
-                    resolveSizeAndState(height/2, heightMeasureSpec, childState));
-        }
-        else {
+            setMeasuredDimension(resolveSizeAndState(width / 2, widthMeasureSpec, childState),
+                    resolveSizeAndState(height / 2, heightMeasureSpec, childState));
+        } else {
             int widthSpec = MeasureSpec.getSize(widthMeasureSpec);
             int heightSpec = MeasureSpec.getSize(heightMeasureSpec);
             int width = Math.max(widthSpec, getSuggestedMinimumWidth());
@@ -344,41 +350,41 @@ public class PaletteView extends ViewGroup {
         }
     }
 
-    private class drawable extends  Drawable{
+    private class drawable extends Drawable {
 
-            public void draw(Canvas canvas) {
-                Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                paint.setColor(0xAADC9D60);
-                Path path = new Path();
+        public void draw(Canvas canvas) {
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(0xAADC9D60);
+            Path path = new Path();
 
-                _paletteRect = new RectF();
-                _paletteRect.left = getPaddingLeft();
-                _paletteRect.top = getPaddingTop();
-                _paletteRect.right = getWidth() - getPaddingRight();
-                _paletteRect.bottom = getHeight() - getPaddingBottom();
+            _paletteRect = new RectF();
+            _paletteRect.left = getPaddingLeft();
+            _paletteRect.top = getPaddingTop();
+            _paletteRect.right = getWidth() - getPaddingRight();
+            _paletteRect.bottom = getHeight() - getPaddingBottom();
 
-                PointF circleCenter = new PointF(_paletteRect.centerX(), _paletteRect.centerY());
-                float radius = _paletteRect.height() / 2;
-                int points = 50;
+            PointF circleCenter = new PointF(_paletteRect.centerX(), _paletteRect.centerY());
+            float radius = _paletteRect.height() / 2;
+            int points = 50;
 
-                for (int circlePoint = 0; circlePoint < points; circlePoint++) {
-                    PointF point = new PointF();
+            for (int circlePoint = 0; circlePoint < points; circlePoint++) {
+                PointF point = new PointF();
 
-                    // x = centerX + r * cos(a)
-                    // y = centerY + r * cos(a)
-                    float twoPi = (float) (2 * Math.PI);
-                    point.x = (float) (circleCenter.x + (_paletteRect.width() / 2) * Math.cos(twoPi * ((double) circlePoint / (double) points)));
-                    point.y = (float) (circleCenter.y + (_paletteRect.height() / 2) * Math.sin(twoPi * ((double) circlePoint / (double) points)));
+                // x = centerX + r * cos(a)
+                // y = centerY + r * cos(a)
+                float twoPi = (float) (2 * Math.PI);
+                point.x = (float) (circleCenter.x + (_paletteRect.width() / 2) * Math.cos(twoPi * ((double) circlePoint / (double) points)));
+                point.y = (float) (circleCenter.y + (_paletteRect.height() / 2) * Math.sin(twoPi * ((double) circlePoint / (double) points)));
 
-                    if (circlePoint == 0) {
-                        path.moveTo(point.x, point.y);
-                    } else {
-                        path.lineTo(point.x, point.y);
-                    }
+                if (circlePoint == 0) {
+                    path.moveTo(point.x, point.y);
+                } else {
+                    path.lineTo(point.x, point.y);
                 }
-
-                canvas.drawPath(path, paint);
             }
+
+            canvas.drawPath(path, paint);
+        }
 
         @Override
         public void setAlpha(int i) {
