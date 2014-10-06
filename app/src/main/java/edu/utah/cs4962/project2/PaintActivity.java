@@ -56,30 +56,14 @@ public class PaintActivity extends Activity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
                 // Must divide by one hundred because there is only one hundred points
                 // int the seek bar.
-//                int num = (int) Math.ceil(numberOfPoints / 100.0);// Uncomment this
-
-                double num = progress / 100.0;
-
-                _seekBarPosition = (int)((double)numberOfPoints * ((double)progress/100.0));
+                _seekBarPosition = (int) ((double) numberOfPoints * ((double) progress / 100.0));
 
                 if (_touchedSeekBar) {
-//                int num = (int) Math.ceil(_watchView._count / 100.0);
 
-//                _watchView.SeekBarProgress = progress * num;
-
-//                    _watchView._count = progress * num;
-
-//                    _watchView._count = (int) (numberOfPoints * num);// Uncomment this
-                     _watchView._count = _seekBarPosition;
+                    _watchView._count = _seekBarPosition;
 
                     _watchView.SeekBarRequested = true;
                     _watchView.invalidate();
-                    //touchedSeekBar = false;
-                }
-                Log.w("SEEKBAR PROGRESS", progress+"");
-
-                if(progress >= 90){
-                    Log.w("SEEKBAR PROGRESS", "Seekbar reached 10 percent.");
                 }
             }
 
@@ -136,18 +120,14 @@ public class PaintActivity extends Activity {
                 Toast toast;
                 if (_play) {
 
-                    //toast = Toast.makeText(getBaseContext(), "Play", Toast.LENGTH_SHORT);
                     _playButton.setImageResource(R.drawable.pause);
                     _watchView.PlayAnimation();
                     _play = false;
                 } else {
-                    //toast = Toast.makeText(getBaseContext(), "Pause", Toast.LENGTH_SHORT);
                     _playButton.setImageResource(R.drawable.play);
                     _watchView.PauseAnimation();
                     _play = true;
                 }
-
-                //toast.show();
             }
         });
 
@@ -178,8 +158,10 @@ public class PaintActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
+
+
         _watchView.loadMoviePostition(getFilesDir());
-        _seekBarPosition = (int)(((double) _watchView._count * 100.0)/ PaintAreaView.totalNumberOfPoint);
+        _seekBarPosition = (int) (((double) _watchView._count * 100.0) / PaintAreaView.totalNumberOfPoint);
         _seekBar.setProgress(_seekBarPosition);
     }
 

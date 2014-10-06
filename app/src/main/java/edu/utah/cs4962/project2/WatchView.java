@@ -1,6 +1,7 @@
 package edu.utah.cs4962.project2;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -39,10 +40,9 @@ public class WatchView extends View {
 
     public WatchView(Context context) {
         super(context);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 
-        //this.startTime = System.currentTimeMillis();
-        //this.postInvalidate();
-        //init();
+        }
     }
 
     @Override
@@ -68,35 +68,21 @@ public class WatchView extends View {
         } else if (!_pauseAnimation && false) {
             long elapsedTime = System.currentTimeMillis() - startTime;
 
-            Log.w("elapsedTime", elapsedTime + "");
-
-            //canvas.drawPath(path, paint);
-
-//        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            drawLinesInLandscapeMode(canvas);
-//
-//        } else {
-
-
             drawLinesInPortraitMode(canvas, (int) (elapsedTime / 50));
 
             if (elapsedTime < animationDuration)
                 this.postInvalidateDelayed(1000 / framesPerSecond);
-//
-//        }
-        } else {//if (_pauseAnimation) {
+        } else {
             drawLinesInPortraitMode(canvas, _count);
         }
 
     }
-
 
     private void drawLinesInPortraitMode(Canvas canvas, int numOfLinesToDraw) {
 
         numberOfLinesDrawn = numOfLinesToDraw;
         int count = 0;
         for (int lineIndex = 0; lineIndex < PaintAreaView._linePoints.size(); lineIndex++) {
-//        for (int lineIndex = 0; lineIndex < 1; lineIndex++) {
             Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             polylinePaint.setStyle(Paint.Style.STROKE);
             polylinePaint.setStrokeWidth(2.0f);
@@ -123,6 +109,42 @@ public class WatchView extends View {
         }
     }
 
+    /**
+     * Working perfectly Uncomment it if the other one gets messed up.
+     * @param canvas
+     * @param numOfLinesToDraw
+     */
+//    private void drawLinesInPortraitMode(Canvas canvas, int numOfLinesToDraw) {
+//
+//        numberOfLinesDrawn = numOfLinesToDraw;
+//        int count = 0;
+//        for (int lineIndex = 0; lineIndex < PaintAreaView._linePoints.size(); lineIndex++) {
+//            Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+//            polylinePaint.setStyle(Paint.Style.STROKE);
+//            polylinePaint.setStrokeWidth(2.0f);
+//            Path polylinePath = new Path();
+//            polylinePaint.setColor(PaintAreaView._linePoints.get(lineIndex).getColor());
+//
+//            if (!PaintAreaView._linePoints.isEmpty()) {
+//                try {
+//                    polylinePath.moveTo(PaintAreaView._linePoints.get(lineIndex).linePoints.get(0).x,
+//                            PaintAreaView._linePoints.get(lineIndex).linePoints.get(0).y);
+//                } catch (Exception e) {
+//                    continue;
+//                }
+//
+//                for (PointF point : PaintAreaView._linePoints.get(lineIndex).linePoints) {
+//                    if (count < numOfLinesToDraw) {
+//                        count++;
+//                        polylinePath.lineTo(point.x, point.y);
+//                    }
+//                }
+//            }
+//
+//            canvas.drawPath(polylinePath, polylinePaint);
+//        }
+//    }
+
     public void PauseAnimation() {
         _pauseAnimation = true;
         _playAnimation = false;
@@ -139,9 +161,10 @@ public class WatchView extends View {
 
     }
 
-    private void drawLinesInLandscapeMode(Canvas canvas) {
-        for (int lineIndex = 0; lineIndex < 5; lineIndex++) {
-//        for (int lineIndex = 0; lineIndex < PaintAreaView._linePoints.size(); lineIndex++) {
+    private void drawLinesInLandscapeMode(Canvas canvas, int numOfLinesToDraw) {
+        numberOfLinesDrawn = numOfLinesToDraw;
+        int count = 0;
+        for (int lineIndex = 0; lineIndex < PaintAreaView._linePoints.size(); lineIndex++) {
             Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             polylinePaint.setStyle(Paint.Style.STROKE);
             polylinePaint.setStrokeWidth(2.0f);
@@ -157,9 +180,13 @@ public class WatchView extends View {
                 }
 
                 for (PointF point : PaintAreaView._linePoints.get(lineIndex).linePoints) {
-                    polylinePath.lineTo(point.x, point.y);
+                    if (count < numOfLinesToDraw) {
+                        count++;
+                        polylinePath.lineTo(point.x, point.y);
+                    }
                 }
             }
+
             canvas.drawPath(polylinePath, polylinePaint);
         }
     }
