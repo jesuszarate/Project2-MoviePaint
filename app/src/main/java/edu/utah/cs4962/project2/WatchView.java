@@ -18,7 +18,12 @@ public class WatchView extends View {
     long animationDuration = 10000; // 10 seconds
     int framesPerSecond = 10;
     boolean _pauseAnimation = false;
+    boolean _playAnimation = false;
     int numberOfLinesDrawn = 0;
+    boolean SeekBarRequested = false;
+    int SeekBarProgress = 0;
+    static int _count = 1;
+
 
     public WatchView(Context context) {
         super(context);
@@ -32,7 +37,26 @@ public class WatchView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (!_pauseAnimation) {
+        if(SeekBarRequested){
+            drawLinesInPortraitMode(canvas, _count);
+            SeekBarRequested = false;
+        }
+        else if (!_pauseAnimation && _playAnimation) {
+
+            if(PaintAreaView.totalNumberOfPoint > _count) {
+                drawLinesInPortraitMode(canvas, _count);
+
+                int num = (int) Math.ceil(_count / 100.0);
+
+                PaintActivity._seekBar.setProgress(_count * num);
+                this.postInvalidateDelayed(50);
+                _count += 2;
+            }
+            else {
+                PauseAnimation();
+            }
+        }
+        else if (!_pauseAnimation && false) {
             long elapsedTime = System.currentTimeMillis() - startTime;
 
             Log.w("elapsedTime", elapsedTime + "");
@@ -52,9 +76,10 @@ public class WatchView extends View {
 //
 //        }
         }
-        else{
-            drawLinesInPortraitMode(canvas, numberOfLinesDrawn);
+        else if (_pauseAnimation){
+            drawLinesInPortraitMode(canvas, _count);
         }
+
     }
 
 //    private void drawAnimatedLines(){
@@ -90,10 +115,7 @@ public class WatchView extends View {
                 }
 
                 for (PointF point : PaintAreaView._linePoints.get(lineIndex).linePoints) {
-//                for (int index = 0; index < PaintAreaView._linePoints.get(lineIndex).linePoints.size(); index++) {
-//                for (int index = 0; index < 10; index++) {
                     if (count < numOfLinesToDraw) {
-                        //PointF point = PaintAreaView._linePoints.get(lineIndex).linePoints.get(index);
                         count++;
                         polylinePath.lineTo(point.x, point.y);
                     }
@@ -106,42 +128,17 @@ public class WatchView extends View {
 
     public void PauseAnimation() {
         _pauseAnimation = true;
+        _playAnimation = false;
+
         postInvalidate();
     }
 
     public void PlayAnimation() {
         this.startTime = System.currentTimeMillis();
         _pauseAnimation = false;
+        _playAnimation = true;
+        PaintActivity._touchedSeekBar = false;
         postInvalidate();
-
-//        //int w = canvas.getWidth();
-////        int h = canvas.getHeight();
-////        canvas.drawLine(w/2, 0, w/2, h-1, paint);
-//
-//        // PAUSE FIVE SECONDS
-//        new CountDownTimer(5000, 1000) {
-//
-//            @Override
-//            public void onTick(long miliseconds) {
-////                    if(miliseconds % 1000 == 0){
-//                counter++;
-//                Log.d("WatchView", counter + "");
-////                }
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//                //after 5 seconds draw the second line
-////                canvas.drawLine(0, h/2, w-1, h/2, paint);
-//                //Log.d("WatchView", "Finished");
-//
-//
-//                //drawLinesInPortraitMode(canv);
-//
-//
-//                //invalidate();
-//            }
-//        }.start();
 
     }
 

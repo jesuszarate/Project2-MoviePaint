@@ -21,6 +21,7 @@ public class CreateModeActivity extends Activity {
     public Button _watchModeButton;
     public static String BUTTON_COLOR = "BUTTON_COLOR";
 
+    public static final String NUMBER_OF_POINTS_EXTRA = "number_of_points";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +84,7 @@ public class CreateModeActivity extends Activity {
             @Override
             public void onClick(View view) {
                 _paintAreaView.clearLinePoints();
+                _paintAreaView.totalNumberOfPoint = 0;
                 _paintAreaView.saveLinePoints(getFilesDir());
                 _paintAreaView.invalidate();
             }
@@ -111,10 +113,13 @@ public class CreateModeActivity extends Activity {
     }
 
     private void startNewPaintActivity() {
-        Intent intent = new Intent(this, PaintActivity.class);
+        Intent intent = new Intent(CreateModeActivity.this, PaintActivity.class);
+
+        intent.putExtra(NUMBER_OF_POINTS_EXTRA, _paintAreaView.totalNumberOfPoint);
         this.startActivity(intent);
     }
-//    private void startWatchActivity() {
+
+    //    private void startWatchActivity() {
 //        Intent intent = new Intent(this, WatchView.class);
 //        this.startActivity(intent);
 //    }

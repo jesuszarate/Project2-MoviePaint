@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -20,11 +22,17 @@ public class PaintActivity extends Activity {
     boolean _play = false;
     ImageView _playButton = null;
     WatchView _watchView;
+    int numberOfPoints = 0;
+    static SeekBar _seekBar;
+    static boolean _touchedSeekBar = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (getIntent().hasExtra(CreateModeActivity.NUMBER_OF_POINTS_EXTRA)) {
+            numberOfPoints = getIntent().getExtras().getInt(CreateModeActivity.NUMBER_OF_POINTS_EXTRA);
+        }
         _playButton = new ImageView(this);
 
         LinearLayout rootLayout = new LinearLayout(this);
@@ -33,18 +41,49 @@ public class PaintActivity extends Activity {
         else
             rootLayout.setOrientation(LinearLayout.VERTICAL);
 
-        _watchView = new WatchView(this);//new PaintAreaView(this);
+        _watchView = new WatchView(this);
         _watchView.setBackgroundColor(Color.WHITE);
 
-        // TODO:    Uncomment Me.
-//        // Seek bar
-//        LinearLayout SeekBarArea = new LinearLayout(this);
-//        SeekBarArea.setOrientation(LinearLayout.VERTICAL);
-//        SeekBar seekBar = new SeekBar(this);
-//        seekBar.setBackgroundColor(Color.WHITE);
-//        SeekBarArea.addView(seekBar);
-//        rootLayout.addView(SeekBarArea,
-//                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        // Seek bar
+        LinearLayout SeekBarArea = new LinearLayout(this);
+        SeekBarArea.setOrientation(LinearLayout.VERTICAL);
+        _seekBar = new SeekBar(this);
+        _seekBar.setBackgroundColor(Color.WHITE);
+        SeekBarArea.addView(_seekBar);
+        _seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                // Must divide by one hundred because there is only one hundred points
+                // int the seek bar.
+                int num = (int) Math.ceil(numberOfPoints / 100.0);
+                if (_touchedSeekBar) {
+//                int num = (int) Math.ceil(_watchView._count / 100.0);
+
+//                _watchView.SeekBarProgress = progress * num;
+
+                    _watchView._count = progress * num;
+
+                    _watchView.SeekBarRequested = true;
+                    _watchView.invalidate();
+                    //touchedSeekBar = false;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                Log.w("Seek Track Touched", "Touched");
+                _touchedSeekBar = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int progress = seekBar.getProgress();
+
+
+                // Process here, for example using AsyncTask
+            }
+        });
+
 
         // Menu bar
         LinearLayout MenuBar = new LinearLayout(this);
@@ -84,7 +123,6 @@ public class PaintActivity extends Activity {
 
                     toast = Toast.makeText(getBaseContext(), "Play", Toast.LENGTH_SHORT);
                     _playButton.setImageResource(R.drawable.pause);
-                    //_watchView.init();
                     _watchView.PauseAnimation();
                     _play = false;
                 } else {
@@ -100,12 +138,24 @@ public class PaintActivity extends Activity {
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 10));
-            rootLayout.addView(_watchView,
-                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 90));
-        }
-        else {
+
+            LinearLayout watchSeekArea = new LinearLayout(this);
+            watchSeekArea.setOrientation(LinearLayout.VERTICAL);
+
+            watchSeekArea.addView(_watchView,
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 90));
+            watchSeekArea.addView(SeekBarArea,
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            rootLayout.addView(watchSeekArea, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 90));
+//            rootLayout.addView(_watchView,
+//                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 90));
+//            rootLayout.addView(SeekBarArea,
+//                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        } else {
             rootLayout.addView(_watchView,
                     new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 90));
+            rootLayout.addView(SeekBarArea,
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10));
         }
 

@@ -31,6 +31,7 @@ public class PaintAreaView extends ViewGroup {
     private int _lineCount = -1;
     public static HashMap<Integer, Line> _linePoints = new HashMap<Integer, Line>();
     private int _lineColor = Color.BLACK;
+    public static int totalNumberOfPoint = 0;
     Gson _gson = new Gson();
 
     public PaintAreaView(Context context) {
@@ -91,7 +92,7 @@ public class PaintAreaView extends ViewGroup {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
+        totalNumberOfPoint = 0;
         for (int lineIndex = 0; lineIndex < _linePoints.size(); lineIndex++) {
             Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             polylinePaint.setStyle(Paint.Style.STROKE);
@@ -107,6 +108,7 @@ public class PaintAreaView extends ViewGroup {
                     continue;
                 }
 
+                totalNumberOfPoint += _linePoints.get(lineIndex).linePoints.size();
                 for (PointF point : _linePoints.get(lineIndex).linePoints) {
                     polylinePath.lineTo(point.x, point.y);
                 }
