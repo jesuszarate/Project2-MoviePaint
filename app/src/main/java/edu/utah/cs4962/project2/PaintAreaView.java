@@ -1,11 +1,14 @@
 package edu.utah.cs4962.project2;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.drawable.GradientDrawable;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
@@ -32,6 +35,7 @@ public class PaintAreaView extends ViewGroup {
     public static HashMap<Integer, Line> _linePoints = new HashMap<Integer, Line>();
     private int _lineColor = Color.BLACK;
     public static int totalNumberOfPoint = 0;
+    boolean _loadedPoints = false;
     Gson _gson = new Gson();
 
     public PaintAreaView(Context context) {
@@ -81,7 +85,10 @@ public class PaintAreaView extends ViewGroup {
 
             _linePoints.put(_lineCount, line);
         }
+        int height = getWidth();
         _linePoints.get(_lineCount).linePoints.add(new PointF(x, y));
+
+        _linePoints.get(_lineCount).percentageLinePoints.add(new PercentPoint(percentOfX(x), percentOfY(y)));
 
         invalidate();
 
@@ -89,9 +96,53 @@ public class PaintAreaView extends ViewGroup {
 
     }
 
+    private float percentOfX(float x) {
+        float w = getWidth();
+        return (x / (float) getWidth()) * 100.0f;
+    }
+
+    private float percentOfY(float y) {
+        return (y / (float) getHeight()) * 100.0f;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (true) {
+            drawScaledPoints(canvas);
+        } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+
+            drawScaledPoints(canvas);
+            _loadedPoints = false;
+        } else {
+            totalNumberOfPoint = 0;
+            for (int lineIndex = 0; lineIndex < _linePoints.size(); lineIndex++) {
+                Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                polylinePaint.setStyle(Paint.Style.STROKE);
+                polylinePaint.setStrokeWidth(2.0f);
+                Path polylinePath = new Path();
+                polylinePaint.setColor(_linePoints.get(lineIndex).getColor());
+
+                if (!_linePoints.isEmpty()) {
+                    try {
+                        polylinePath.moveTo(_linePoints.get(lineIndex).linePoints.get(0).x,
+                                _linePoints.get(lineIndex).linePoints.get(0).y);
+                    } catch (Exception e) {
+                        continue;
+                    }
+
+                    totalNumberOfPoint += _linePoints.get(lineIndex).linePoints.size();
+                    for (PointF point : _linePoints.get(lineIndex).linePoints) {
+                        polylinePath.lineTo(point.x, point.y);
+                    }
+                }
+
+                canvas.drawPath(polylinePath, polylinePaint);
+            }
+        }
+    }
+
+    private void drawScaledPoints(Canvas canvas) {
         totalNumberOfPoint = 0;
         for (int lineIndex = 0; lineIndex < _linePoints.size(); lineIndex++) {
             Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -102,15 +153,24 @@ public class PaintAreaView extends ViewGroup {
 
             if (!_linePoints.isEmpty()) {
                 try {
-                    polylinePath.moveTo(_linePoints.get(lineIndex).linePoints.get(0).x,
-                            _linePoints.get(lineIndex).linePoints.get(0).y);
+
+                    float pointX = ((float) _linePoints.get(lineIndex).percentageLinePoints.get(0).x * getWidth()) / 100.0f;
+                    float pointY = ((float) _linePoints.get(lineIndex).percentageLinePoints.get(0).y * getHeight()) / 100.0f;
+
+                    polylinePath.moveTo(pointX, pointY);
+
                 } catch (Exception e) {
                     continue;
                 }
 
                 totalNumberOfPoint += _linePoints.get(lineIndex).linePoints.size();
-                for (PointF point : _linePoints.get(lineIndex).linePoints) {
-                    polylinePath.lineTo(point.x, point.y);
+
+                float pointX;
+                float pointY;
+                for (PercentPoint point : _linePoints.get(lineIndex).percentageLinePoints) {
+                    pointX = ((float) point.x * getWidth()) / 100.0f;
+                    pointY = ((float) point.y * getHeight()) / 100.0f;
+                    polylinePath.lineTo(pointX, pointY);
                 }
             }
 
@@ -152,9 +212,9 @@ public class PaintAreaView extends ViewGroup {
             String jsonBookList = null;
             jsonBookList = bufferedTextReader.readLine();
 
-            Type booklistType = new TypeToken<HashMap<Integer, Line>>() {
+            Type lineListType = new TypeToken<HashMap<Integer, Line>>() {
             }.getType();
-            HashMap<Integer, Line> linePoints = _gson.fromJson(jsonBookList, booklistType);
+            HashMap<Integer, Line> linePoints = _gson.fromJson(jsonBookList, lineListType);
             _linePoints = linePoints;
             bufferedTextReader.close();
 
@@ -165,9 +225,10 @@ public class PaintAreaView extends ViewGroup {
             bufferedReader.close();
             try {
                 _lineCount = Integer.parseInt(lineCount);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+            _loadedPoints = true;
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -178,6 +239,7 @@ public class PaintAreaView extends ViewGroup {
 
     public class Line {
         ArrayList<PointF> linePoints = new ArrayList<PointF>();
+        ArrayList<PercentPoint> percentageLinePoints = new ArrayList<PercentPoint>();
         private int _color;
 
         public int getColor() {
@@ -186,6 +248,17 @@ public class PaintAreaView extends ViewGroup {
 
         public void setColor(int _color) {
             this._color = _color;
+        }
+
+    }
+
+    public class PercentPoint {
+        double x = 0;
+        double y = 0;
+
+        public PercentPoint(float _x, float _y) {
+            this.x = _x;
+            this.y = _y;
         }
 
     }

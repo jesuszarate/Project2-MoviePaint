@@ -34,6 +34,7 @@ public class CreateModeActivity extends Activity {
         _paintAreaView.setBackgroundColor(Color.WHITE);
 
 
+        // Paint Area
         rootLayout.addView(_paintAreaView,
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 85));
 
