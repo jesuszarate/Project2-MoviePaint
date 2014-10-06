@@ -8,6 +8,19 @@ import android.graphics.PointF;
 import android.util.Log;
 import android.view.View;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+
 /**
  * Created by Jesus Zarate on 10/4/14.
  */
@@ -24,7 +37,6 @@ public class WatchView extends View {
     int SeekBarProgress = 0;
     static int _count = 1;
 
-
     public WatchView(Context context) {
         super(context);
 
@@ -37,26 +49,23 @@ public class WatchView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(SeekBarRequested){
+        if (SeekBarRequested) {
             drawLinesInPortraitMode(canvas, _count);
             SeekBarRequested = false;
-        }
-        else if (!_pauseAnimation && _playAnimation) {
+        } else if (!_pauseAnimation && _playAnimation) {
 
-            if(PaintAreaView.totalNumberOfPoint > _count) {
+            if (PaintAreaView.totalNumberOfPoint > _count) {
                 drawLinesInPortraitMode(canvas, _count);
 
-                int num = (int) Math.ceil(_count / 100.0);
+                double num = (double) _count * 100.0;
 
-                PaintActivity._seekBar.setProgress(_count * num);
+                PaintActivity._seekBar.setProgress((int) (num / PaintAreaView.totalNumberOfPoint));
                 this.postInvalidateDelayed(50);
                 _count += 2;
-            }
-            else {
+            } else {
                 PauseAnimation();
             }
-        }
-        else if (!_pauseAnimation && false) {
+        } else if (!_pauseAnimation && false) {
             long elapsedTime = System.currentTimeMillis() - startTime;
 
             Log.w("elapsedTime", elapsedTime + "");
@@ -75,24 +84,12 @@ public class WatchView extends View {
                 this.postInvalidateDelayed(1000 / framesPerSecond);
 //
 //        }
-        }
-        else if (_pauseAnimation){
+        } else {//if (_pauseAnimation) {
             drawLinesInPortraitMode(canvas, _count);
         }
 
     }
 
-//    private void drawAnimatedLines(){
-//        for (int lineIndex = 0; lineIndex < PaintAreaView._linePoints.size(); lineIndex++) {
-//            Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-//            polylinePaint.setStyle(Paint.Style.STROKE);
-//            polylinePaint.setStrokeWidth(2.0f);
-//            Path polylinePath = new Path();
-//            polylinePaint.setColor(PaintAreaView._linePoints.get(lineIndex).getColor());
-//
-//
-//        }
-//    }
 
     private void drawLinesInPortraitMode(Canvas canvas, int numOfLinesToDraw) {
 
@@ -164,6 +161,46 @@ public class WatchView extends View {
                 }
             }
             canvas.drawPath(polylinePath, polylinePaint);
+        }
+    }
+
+    public void saveMoviePostition(File filesDir) {
+
+        try {
+            File file = new File(filesDir, "numberOfPointsDrawn.txt");
+            FileWriter textWriter = null;
+
+            textWriter = new FileWriter(file);
+
+            BufferedWriter bufferedWriter = new BufferedWriter(textWriter);
+
+            // Write the paint points in json format.
+            bufferedWriter.write(_count);
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void loadMoviePostition(File filesDir) {
+        try {
+            File file = new File(filesDir, "numberOfPointsDrawn.txt");
+            FileReader textReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(textReader);
+            String lineCount = bufferedReader.readLine();
+            bufferedReader.close();
+            try {
+                _count = Integer.parseInt(lineCount);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            postInvalidate();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

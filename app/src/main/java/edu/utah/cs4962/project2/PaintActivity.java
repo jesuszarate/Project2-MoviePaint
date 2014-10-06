@@ -19,12 +19,13 @@ import com.google.gson.Gson;
 public class PaintActivity extends Activity {
 
     Gson _gson = new Gson();
-    boolean _play = false;
+    boolean _play = true;
     ImageView _playButton = null;
     WatchView _watchView;
     int numberOfPoints = 0;
     static SeekBar _seekBar;
     static boolean _touchedSeekBar = false;
+    int _seekBarPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,17 +56,30 @@ public class PaintActivity extends Activity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
                 // Must divide by one hundred because there is only one hundred points
                 // int the seek bar.
-                int num = (int) Math.ceil(numberOfPoints / 100.0);
+//                int num = (int) Math.ceil(numberOfPoints / 100.0);// Uncomment this
+
+                double num = progress / 100.0;
+
+                _seekBarPosition = (int)((double)numberOfPoints * ((double)progress/100.0));
+
                 if (_touchedSeekBar) {
 //                int num = (int) Math.ceil(_watchView._count / 100.0);
 
 //                _watchView.SeekBarProgress = progress * num;
 
-                    _watchView._count = progress * num;
+//                    _watchView._count = progress * num;
+
+//                    _watchView._count = (int) (numberOfPoints * num);// Uncomment this
+                     _watchView._count = _seekBarPosition;
 
                     _watchView.SeekBarRequested = true;
                     _watchView.invalidate();
                     //touchedSeekBar = false;
+                }
+                Log.w("SEEKBAR PROGRESS", progress+"");
+
+                if(progress >= 90){
+                    Log.w("SEEKBAR PROGRESS", "Seekbar reached 10 percent.");
                 }
             }
 
@@ -97,13 +111,14 @@ public class PaintActivity extends Activity {
         Button backToCreateButton = new Button(this);
         backToCreateButton.setText("Create Mode");
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-            MenuBar.addView(backToCreateButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
+            MenuBar.addView(backToCreateButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 0, 1));
         else
-            MenuBar.addView(backToCreateButton, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+            MenuBar.addView(backToCreateButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         backToCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 _watchView.invalidate();
+                _watchView._count = 0;
                 finish();
             }
         });
@@ -121,36 +136,32 @@ public class PaintActivity extends Activity {
                 Toast toast;
                 if (_play) {
 
-                    toast = Toast.makeText(getBaseContext(), "Play", Toast.LENGTH_SHORT);
+                    //toast = Toast.makeText(getBaseContext(), "Play", Toast.LENGTH_SHORT);
                     _playButton.setImageResource(R.drawable.pause);
-                    _watchView.PauseAnimation();
+                    _watchView.PlayAnimation();
                     _play = false;
                 } else {
-                    toast = Toast.makeText(getBaseContext(), "Pause", Toast.LENGTH_SHORT);
+                    //toast = Toast.makeText(getBaseContext(), "Pause", Toast.LENGTH_SHORT);
                     _playButton.setImageResource(R.drawable.play);
-                    _watchView.PlayAnimation();
+                    _watchView.PauseAnimation();
                     _play = true;
                 }
 
-                toast.show();
+                //toast.show();
             }
         });
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 10));
+            rootLayout.addView(MenuBar, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 20));
 
             LinearLayout watchSeekArea = new LinearLayout(this);
             watchSeekArea.setOrientation(LinearLayout.VERTICAL);
 
             watchSeekArea.addView(_watchView,
-                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 90));
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 80));
             watchSeekArea.addView(SeekBarArea,
                     new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             rootLayout.addView(watchSeekArea, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 90));
-//            rootLayout.addView(_watchView,
-//                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 90));
-//            rootLayout.addView(SeekBarArea,
-//                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         } else {
             rootLayout.addView(_watchView,
                     new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 90));
@@ -167,16 +178,16 @@ public class PaintActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        //_paintAreaView.loadLinePoints(getFilesDir());
-
+        _watchView.loadMoviePostition(getFilesDir());
+        _seekBarPosition = (int)(((double) _watchView._count * 100.0)/ PaintAreaView.totalNumberOfPoint);
+        _seekBar.setProgress(_seekBarPosition);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        //_paintAreaView.saveLinePoints(getFilesDir());
-
+        _watchView.saveMoviePostition(getFilesDir());
     }
 
 
