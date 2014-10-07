@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,12 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-
 
 public class PaintActivity extends Activity {
 
-    Gson _gson = new Gson();
     boolean _play = true;
     ImageView _playButton = null;
     WatchView _watchView;
@@ -26,6 +22,7 @@ public class PaintActivity extends Activity {
     static SeekBar _seekBar;
     static boolean _touchedSeekBar = false;
     int _seekBarPosition = 0;
+    boolean _animationFinished = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +41,17 @@ public class PaintActivity extends Activity {
 
         _watchView = new WatchView(this);
         _watchView.setBackgroundColor(Color.WHITE);
+        _watchView.setOnAnimationFinishedListener(new WatchView.OnAnimationFinishedListener(){
+
+            @Override
+            public void onAnimationFinished(WatchView watchView) {
+                _playButton.setImageResource(R.drawable.play);
+                _play = true;
+
+                _animationFinished = true;
+            }
+        });
+
 
         // Seek bar
         LinearLayout SeekBarArea = new LinearLayout(this);
@@ -60,7 +68,7 @@ public class PaintActivity extends Activity {
 
                 if (_touchedSeekBar) {
 
-                    _watchView._count = _seekBarPosition;
+                    WatchView._count = _seekBarPosition;
 
                     _watchView.SeekBarRequested = true;
                     _watchView.invalidate();
@@ -69,8 +77,10 @@ public class PaintActivity extends Activity {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                Log.w("Seek Track Touched", "Touched");
                 _touchedSeekBar = true;
+                _playButton.setImageResource(R.drawable.play);
+                _animationFinished = false;
+                _play = true;
             }
 
             @Override
@@ -102,7 +112,7 @@ public class PaintActivity extends Activity {
             @Override
             public void onClick(View view) {
                 _watchView.invalidate();
-                _watchView._count = 0;
+                WatchView._count = 0;
                 finish();
             }
         });
@@ -117,9 +127,13 @@ public class PaintActivity extends Activity {
         _playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast toast;
                 if (_play) {
 
+                    if(_animationFinished){
+                        WatchView._count = 0;
+                        _seekBar.setProgress(0);
+                        _animationFinished = false;
+                    }
                     _playButton.setImageResource(R.drawable.pause);
                     _watchView.PlayAnimation();
                     _play = false;
@@ -161,7 +175,7 @@ public class PaintActivity extends Activity {
 
 
         _watchView.loadMoviePostition(getFilesDir());
-        _seekBarPosition = (int) (((double) _watchView._count * 100.0) / PaintAreaView.totalNumberOfPoint);
+        _seekBarPosition = (int) (((double) WatchView._count * 100.0) / PaintAreaView.totalNumberOfPoint);
         _seekBar.setProgress(_seekBarPosition);
     }
 

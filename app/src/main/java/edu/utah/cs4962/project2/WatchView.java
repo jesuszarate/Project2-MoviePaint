@@ -38,6 +38,15 @@ public class WatchView extends View {
     int SeekBarProgress = 0;
     static int _count = 1;
 
+    public interface OnAnimationFinishedListener{
+        public void onAnimationFinished(WatchView watchView);
+    }
+    OnAnimationFinishedListener _onAnimationFinishedListener = null;
+
+    public void setOnAnimationFinishedListener(OnAnimationFinishedListener listener){
+        _onAnimationFinishedListener = listener;
+    }
+
     public WatchView(Context context) {
         super(context);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -50,13 +59,13 @@ public class WatchView extends View {
         super.onDraw(canvas);
 
         if (SeekBarRequested) {
-            drawLinesInPortraitMode(canvas, _count);
+            drawScaledPoints(canvas, _count);
+
             SeekBarRequested = false;
         } else if (!_pauseAnimation && _playAnimation) {
 
             if (PaintAreaView.totalNumberOfPoint > _count) {
-                drawLinesInPortraitMode(canvas, _count);
-
+                drawScaledPoints(canvas, _count);
                 double num = (double) _count * 100.0;
 
                 PaintActivity._seekBar.setProgress((int) (num / PaintAreaView.totalNumberOfPoint));
@@ -64,6 +73,8 @@ public class WatchView extends View {
                 _count += 2;
             } else {
                 PauseAnimation();
+                _onAnimationFinishedListener.onAnimationFinished(this);
+
             }
         } else if (!_pauseAnimation && false) {
             long elapsedTime = System.currentTimeMillis() - startTime;
@@ -73,7 +84,8 @@ public class WatchView extends View {
             if (elapsedTime < animationDuration)
                 this.postInvalidateDelayed(1000 / framesPerSecond);
         } else {
-            drawLinesInPortraitMode(canvas, _count);
+
+            drawScaledPoints(canvas, _count);
         }
 
     }
@@ -109,41 +121,35 @@ public class WatchView extends View {
         }
     }
 
-    /**
-     * Working perfectly Uncomment it if the other one gets messed up.
-     * @param canvas
-     * @param numOfLinesToDraw
-     */
-//    private void drawLinesInPortraitMode(Canvas canvas, int numOfLinesToDraw) {
-//
-//        numberOfLinesDrawn = numOfLinesToDraw;
-//        int count = 0;
-//        for (int lineIndex = 0; lineIndex < PaintAreaView._linePoints.size(); lineIndex++) {
-//            Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-//            polylinePaint.setStyle(Paint.Style.STROKE);
-//            polylinePaint.setStrokeWidth(2.0f);
-//            Path polylinePath = new Path();
-//            polylinePaint.setColor(PaintAreaView._linePoints.get(lineIndex).getColor());
-//
-//            if (!PaintAreaView._linePoints.isEmpty()) {
-//                try {
-//                    polylinePath.moveTo(PaintAreaView._linePoints.get(lineIndex).linePoints.get(0).x,
-//                            PaintAreaView._linePoints.get(lineIndex).linePoints.get(0).y);
-//                } catch (Exception e) {
-//                    continue;
-//                }
-//
-//                for (PointF point : PaintAreaView._linePoints.get(lineIndex).linePoints) {
-//                    if (count < numOfLinesToDraw) {
-//                        count++;
-//                        polylinePath.lineTo(point.x, point.y);
-//                    }
-//                }
-//            }
-//
-//            canvas.drawPath(polylinePath, polylinePaint);
-//        }
-//    }
+    private void drawScaledPoints(Canvas canvas, int numOfLinesToDraw) {
+        int count = 0;
+        for (int lineIndex = 0; lineIndex < PaintAreaView._linePoints.size(); lineIndex++) {
+            Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            polylinePaint.setStyle(Paint.Style.STROKE);
+            polylinePaint.setStrokeWidth(2.0f);
+            Path polylinePath = new Path();
+            polylinePaint.setColor(PaintAreaView._linePoints.get(lineIndex).getColor());
+            if (!PaintAreaView._linePoints.isEmpty()) {
+                try {
+                    float pointX = ((float) PaintAreaView._linePoints.get(lineIndex).percentageLinePoints.get(0).x * getWidth()) / 100.0f;
+                    float pointY = ((float) PaintAreaView._linePoints.get(lineIndex).percentageLinePoints.get(0).y * getHeight()) / 100.0f;
+                    polylinePath.moveTo(pointX, pointY);
+                } catch (Exception e) {continue;}
+                float pointX;
+                float pointY;
+                for (PaintAreaView.PercentPoint point : PaintAreaView._linePoints.get(lineIndex).percentageLinePoints) {
+                    if(count < numOfLinesToDraw) {
+                        pointX = ((float) point.x * getWidth()) / 100.0f;
+                        pointY = ((float) point.y * getHeight()) / 100.0f;
+                        polylinePath.lineTo(pointX, pointY);
+                        count++;
+                    }
+                }
+            }
+            canvas.drawPath(polylinePath, polylinePaint);
+        }
+    }
+
 
     public void PauseAnimation() {
         _pauseAnimation = true;
@@ -159,36 +165,6 @@ public class WatchView extends View {
         PaintActivity._touchedSeekBar = false;
         postInvalidate();
 
-    }
-
-    private void drawLinesInLandscapeMode(Canvas canvas, int numOfLinesToDraw) {
-        numberOfLinesDrawn = numOfLinesToDraw;
-        int count = 0;
-        for (int lineIndex = 0; lineIndex < PaintAreaView._linePoints.size(); lineIndex++) {
-            Paint polylinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            polylinePaint.setStyle(Paint.Style.STROKE);
-            polylinePaint.setStrokeWidth(2.0f);
-            Path polylinePath = new Path();
-            polylinePaint.setColor(PaintAreaView._linePoints.get(lineIndex).getColor());
-
-            if (!PaintAreaView._linePoints.isEmpty()) {
-                try {
-                    polylinePath.moveTo(PaintAreaView._linePoints.get(lineIndex).linePoints.get(0).x,
-                            PaintAreaView._linePoints.get(lineIndex).linePoints.get(0).y);
-                } catch (Exception e) {
-                    continue;
-                }
-
-                for (PointF point : PaintAreaView._linePoints.get(lineIndex).linePoints) {
-                    if (count < numOfLinesToDraw) {
-                        count++;
-                        polylinePath.lineTo(point.x, point.y);
-                    }
-                }
-            }
-
-            canvas.drawPath(polylinePath, polylinePaint);
-        }
     }
 
     public void saveMoviePostition(File filesDir) {
