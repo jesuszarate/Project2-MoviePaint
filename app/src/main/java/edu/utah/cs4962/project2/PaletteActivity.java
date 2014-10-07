@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.print.PrintAttributes;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,8 @@ public class PaletteActivity extends Activity {
         LinearLayout rootLayout = new LinearLayout(this);
         rootLayout.setOrientation(LinearLayout.VERTICAL);
 
+
+
         LinearLayout.LayoutParams paletteViewLP = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 0, 90);
         paletteViewLP.gravity = Gravity.CENTER_HORIZONTAL;
         rootLayout.addView(_paletteLayout, paletteViewLP);
@@ -59,7 +62,10 @@ public class PaletteActivity extends Activity {
         // Back to Create Mode button.
         Button createModeButton = new Button(this);
         createModeButton.setText("Create Mode");
-        rootLayout.addView(createModeButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10));
+        LinearLayout.LayoutParams createModeButtonParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10);
+        createModeButtonParams.setMargins(10, 10, 10, 10);
+        createModeButton.setBackgroundColor(0xFF61D0BE);
+        rootLayout.addView(createModeButton, createModeButtonParams);
         createModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
