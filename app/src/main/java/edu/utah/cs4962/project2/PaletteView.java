@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,6 +86,10 @@ public class PaletteView extends ViewGroup {
             });
 
             this.invalidate();
+        }
+        else{
+            Toast.makeText(getContext(), "Exceeded the number of paints in the palette.",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

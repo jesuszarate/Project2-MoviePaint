@@ -104,10 +104,18 @@ public class PaintActivity extends Activity {
         // GO BACK TO THE CREATE MODE.
         Button backToCreateButton = new Button(this);
         backToCreateButton.setText("Create Mode");
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-            MenuBar.addView(backToCreateButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 0, 1));
-        else
-            MenuBar.addView(backToCreateButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        backToCreateButton.setBackgroundColor(0xFF61D0BE);
+        LinearLayout.LayoutParams backToCreateButtonParams;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            backToCreateButtonParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 0, 1);
+            backToCreateButtonParams.setMargins(10, 10, 0, 10);
+            MenuBar.addView(backToCreateButton, backToCreateButtonParams);
+        }
+        else{
+            backToCreateButtonParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, 1);
+            backToCreateButtonParams.setMargins(10, 0, 0, 10);
+            MenuBar.addView(backToCreateButton, backToCreateButtonParams);
+        }
         backToCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

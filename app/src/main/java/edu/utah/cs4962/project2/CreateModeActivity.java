@@ -22,6 +22,7 @@ public class CreateModeActivity extends Activity {
     public static String BUTTON_COLOR = "BUTTON_COLOR";
 
     public static final String NUMBER_OF_POINTS_EXTRA = "number_of_points";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +50,7 @@ public class CreateModeActivity extends Activity {
         _paintButton.setBackgroundColor(Color.LTGRAY);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 30);
-        params.setMargins(10, 10, 10 ,10);
+        params.setMargins(10, 10, 10, 10);
         MenuBar.addView(_paintButton, params);
         _paintButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +63,7 @@ public class CreateModeActivity extends Activity {
         _watchModeButton = new Button(this);
         _watchModeButton.setText("Watch Mode");
         _watchModeButton.setTextColor(Color.WHITE);
-        _watchModeButton.setBackgroundColor(Color.LTGRAY);
+        _watchModeButton.setBackgroundColor(0xFF61D0BE);
         params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 30);
         params.setMargins(10, 10, 10, 10);
         MenuBar.addView(_watchModeButton, params);
@@ -77,11 +78,11 @@ public class CreateModeActivity extends Activity {
         Button clearButton = new Button(this);
         clearButton.setText("Clear");
         clearButton.setTextColor(Color.WHITE);
-        clearButton.setBackgroundColor(Color.LTGRAY);
+        clearButton.setBackgroundColor(0xFF61D0BE);
         params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 30);
         params.setMargins(10, 10, 10, 10);
         MenuBar.addView(clearButton, params);
-        clearButton.setOnClickListener(new View.OnClickListener(){
+        clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 _paintAreaView.clearLinePoints();
@@ -120,15 +121,11 @@ public class CreateModeActivity extends Activity {
         this.startActivity(intent);
     }
 
-    //    private void startWatchActivity() {
-//        Intent intent = new Intent(this, WatchView.class);
-//        this.startActivity(intent);
-//    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-           int color = data.getIntExtra(BUTTON_COLOR, 0x00000000);
+            int color = data.getIntExtra(BUTTON_COLOR, 0x00000000);
 
             _paintButton.setColor(color);
             _watchModeButton.setTextColor(color);
